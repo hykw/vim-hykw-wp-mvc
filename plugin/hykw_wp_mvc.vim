@@ -16,6 +16,9 @@ set cpo&vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#tagjump()
+let msg_nf_method = 'Not Found: MVC method'
+let msg_nf_topdir = 'Not Found: MVC top directory'
+
   let cmds = {
         \  'callComponent': 'controller/component',
         \  'callModel': 'model',
@@ -36,7 +39,8 @@ function! hykw_wp_mvc#tagjump()
   endfor
 
   if pos == -1
-    return ''
+    echo msg_nf_method
+    return msg_nf_method
   endif
 
   " get the args in the method
@@ -49,7 +53,8 @@ function! hykw_wp_mvc#tagjump()
   " get the project files's top directory
   let topdir = hykw_wp_mvc#getTopDir()
   if topdir == ''
-    return ''
+    echo msg_nf_topdir
+    return msg_nf_topdir
   endif
 
   let openedFile = printf('%s/%s/%s', topdir, filePath, fileName)
