@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0.1
+" version: 1.0.2
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
