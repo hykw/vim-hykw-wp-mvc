@@ -16,8 +16,8 @@ set cpo&vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#tagjump()
-let msg_nf_method = 'Not Found: MVC method'
-let msg_nf_topdir = 'Not Found: MVC top directory'
+  let msg_nf_method = 'Not Found: MVC method'
+  let msg_nf_topdir = 'Not Found: MVC top directory'
 
   let cmds = {
         \  'callComponent': ['controller/component', ''],
@@ -64,13 +64,13 @@ let msg_nf_topdir = 'Not Found: MVC top directory'
   "
   " callComponent, callBehavior, callHelper: the 1st one is filename(.php is omitted)
 
-"     index.php
-"        $objMVC->callModel('top', 'get_catline', $catname);
-"        $objMVC->callView('top', 'view_top', $args);
-"     others
-"        $gobjMVC->callComponent('sp/archives', 'view_archivePages', $args);
-"        $objMVC->callBehavior('urls', 'get_imgPath');
-"        $objMVC->callHelper('footer');
+  "     index.php
+  "        $objMVC->callModel('top', 'get_catline', $catname);
+  "        $objMVC->callView('top', 'view_top', $args);
+  "     others
+  "        $gobjMVC->callComponent('sp/archives', 'view_archivePages', $args);
+  "        $objMVC->callBehavior('urls', 'get_imgPath');
+  "        $objMVC->callHelper('footer');
 
   " methods: callComponent, callBehavior, callHelper?
   if (fileName == '')
