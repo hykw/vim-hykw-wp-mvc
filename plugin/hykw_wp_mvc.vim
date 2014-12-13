@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0
+" version: 1.0.1
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -20,11 +20,11 @@ let msg_nf_method = 'Not Found: MVC method'
 let msg_nf_topdir = 'Not Found: MVC top directory'
 
   let cmds = {
-        \  'callComponent': 'controller/component',
-        \  'callModel': 'model',
-        \  'callBehavior': 'model/behavior',
-        \  'callView': 'view',
-        \  'callHelper': 'view/helper'
+        \  'callComponent': ['controller/component', ''],
+        \  'callModel': ['model', 'index.php'],
+        \  'callBehavior': ['model/behavior', ''],
+        \  'callView': ['view', 'index.php'],
+        \  'callHelper': ['view/helper', ''],
         \  }
 
   " get method name and path
@@ -32,8 +32,10 @@ let msg_nf_topdir = 'Not Found: MVC top directory'
   for method in keys(cmds)
     let pos = stridx(line, method)
 
+    " method found
     if pos != -1
-      let filePath = cmds[method]
+      let filePath = cmds[method][0]
+      let fileName = cmds[method][1]
       break
     endif
   endfor
@@ -43,19 +45,40 @@ let msg_nf_topdir = 'Not Found: MVC top directory'
     return msg_nf_method
   endif
 
-  " get the args in the method
-  let arg = matchstr(line, '(.*)', pos)[1:-2]
-  let arg = substitute(arg, "'", '', 'g')
-  let args = hykw_wp_mvc#getArgs(arg)      " ["sp2/header", ""]
-  let fileName = args[0] . ".php"
-  let funcName = args[1]
-
   " get the project files's top directory
   let topdir = hykw_wp_mvc#getTopDir()
   if topdir == ''
     echo msg_nf_topdir
     return msg_nf_topdir
   endif
+
+  " get the args in the method
+  let arg = matchstr(line, '(.*)', pos)[1:-2]
+  let arg = substitute(arg, "'", '', 'g')
+  let args = hykw_wp_mvc#getArgs(arg)      " ["sp2/header", ""]
+
+
+  " *****
+  " callModel, callView: the 1st argument is directory name(index.php is in it), the 2nd one is
+  " function name.
+  "
+  " callComponent, callBehavior, callHelper: the 1st one is filename(.php is omitted)
+
+"     index.php
+"        $objMVC->callModel('top', 'get_catline', $catname);
+"        $objMVC->callView('top', 'view_top', $args);
+"     others
+"        $gobjMVC->callComponent('sp/archives', 'view_archivePages', $args);
+"        $objMVC->callBehavior('urls', 'get_imgPath');
+"        $objMVC->callHelper('footer');
+
+  " methods: callComponent, callBehavior, callHelper?
+  if (fileName == '')
+    let fileName = args[0] . ".php"
+  else " model/view
+    let fileName = args[0] . "/index.php"
+  endif
+  let funcName = args[1]
 
   let openedFile = printf('%s/%s/%s', topdir, filePath, fileName)
   if filereadable(openedFile)
@@ -83,6 +106,7 @@ endfunction
 function! hykw_wp_mvc#getTopDir()
   " FIXME: it should read style.css, and check if in the parent themes' directory
 
+  lcd $PWD
   let path = globpath('*', 'controller')
   if path == ''
     return ''
@@ -92,6 +116,7 @@ function! hykw_wp_mvc#getTopDir()
 endfunction
 
 
+" get the first and second args in []
 function! hykw_wp_mvc#getArgs(arg)
   let args = split(a:arg, ',')
 
@@ -99,7 +124,7 @@ function! hykw_wp_mvc#getArgs(arg)
   if (len(args) == 1)
     return [args[0], '']
   else
-    return args
+    return [args[0], args[1]]
   endif
 endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""
