@@ -106,6 +106,12 @@ endfunction
 function! hykw_wp_mvc#getTopDir()
   " FIXME: it should read style.css, and check if in the parent themes' directory
 
+  " find out the top dir if this file is there or not.
+  let targetDir = 'controller'
+  if glob(targetDir) != ''
+    return $PWD
+  endif
+
   lcd $PWD
   let path = globpath('*', 'controller')
   if path == ''
