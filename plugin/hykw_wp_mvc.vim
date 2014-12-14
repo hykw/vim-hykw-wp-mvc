@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0.2
+" version: 1.0.3
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -16,6 +16,8 @@ set cpo&vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#tagjump()
+  cd $PWD
+
   let msg_nf_method = 'Not Found: MVC method'
   let msg_nf_topdir = 'Not Found: MVC top directory'
 
