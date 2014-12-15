@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0.3
+" version: 1.0.4
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -55,7 +55,7 @@ function! hykw_wp_mvc#tagjump()
   endif
 
   " get the args in the method
-  let arg = matchstr(line, '(.*)', pos)[1:-2]
+  let arg = matchlist(line, '\v\( *(.+) *\)')[1]
   let arg = substitute(arg, "'", '', 'g')
   let args = hykw_wp_mvc#getArgs(arg)      " ["sp2/header", ""]
 
