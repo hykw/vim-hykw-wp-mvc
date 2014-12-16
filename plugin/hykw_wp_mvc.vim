@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0.4
+" version: 1.0.5
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -98,6 +98,8 @@ function! hykw_wp_mvc#tagjump()
     let window_pos = getpos('.')
     let window_pos[2] = 0
     call setpos('.', window_pos)
+  else
+    echo 'Fail to open: ' . openedFile
   endif
 
   return ''
