@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0.5
+" version: 1.0.6
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -89,17 +89,30 @@ function! hykw_wp_mvc#tagjump()
       only
     endif
 
-    execute printf("split %s", openedFile)
+    call hykw_wp_mvc#openAndSearchString(openedFile, funcName)
 
-    call cursor(1,1)
-    call search(funcName)
-
-    " move to the first character
-    let window_pos = getpos('.')
-    let window_pos[2] = 0
-    call setpos('.', window_pos)
   else
-    echo 'Fail to open: ' . openedFile
+    let confirm = input('Fail to open(' . openedFile .'), Create?(y/N):'  )
+    if confirm != 'y'
+      return "\n"
+    endif
+
+    let dir = printf('%s/%s', topdir, filePath)
+    if isdirectory(dir) != 1
+      call mkdir(dir, 'p')
+    endif
+
+    if filereadable(openedFile) != 1
+      if funcName == ''
+        let buf = ['<?php', '', ]
+      else
+        let buf = ['<?php', '', 'function ' . funcName . '()', '{', '', '}'  ]
+      endif
+
+      call writefile(buf, openedFile)
+      call hykw_wp_mvc#openAndSearchString(openedFile, funcName)
+    endif
+
   endif
 
   return ''
@@ -107,6 +120,18 @@ function! hykw_wp_mvc#tagjump()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
+function! hykw_wp_mvc#openAndSearchString(openedFile, funcName)
+  execute printf("split %s", a:openedFile)
+
+  call cursor(1,1)
+  call search(a:funcName)
+
+  " move to the first character
+  let window_pos = getpos('.')
+  let window_pos[2] = 0
+  call setpos('.', window_pos)
+endfunction
+
 function! hykw_wp_mvc#getTopDir()
   " FIXME: it should read style.css, and check if in the parent themes' directory
 
