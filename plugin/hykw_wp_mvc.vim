@@ -15,7 +15,10 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
-let g:hykw_wp_mvc#ag_command = "Ag "
+
+if !exists('hykw_wp_mvc#ag_command')
+  let g:hykw_wp_mvc#ag_command = "Ag "
+endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#tagjump()
