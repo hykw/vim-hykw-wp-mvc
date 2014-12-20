@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.0.6
+" version: 1.1.0
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -15,37 +15,26 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
+let g:hykw_wp_mvc#ag_command = "Ag "
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#tagjump()
   cd $PWD
 
   let msg_nf_method = 'Not Found: MVC method'
   let msg_nf_topdir = 'Not Found: MVC top directory'
 
-  let cmds = {
-        \  'callComponent': ['controller/component', ''],
-        \  'callModel': ['model', 'index.php'],
-        \  'callBehavior': ['model/behavior', ''],
-        \  'callView': ['view', 'index.php'],
-        \  'callHelper': ['view/helper', ''],
-        \  }
+  let cmds = hykw_wp_mvc#getCMDs()
 
   " get method name and path
   let line = getline('.')
-  for method in keys(cmds)
-    let pos = stridx(line, method)
-
-    " method found
-    if pos != -1
-      let filePath = cmds[method][0]
-      let fileName = cmds[method][1]
-      break
-    endif
-  endfor
-
-  if pos == -1
-    echo msg_nf_method
-    return msg_nf_method
+  let work = hykw_wp_mvc#getMethod(line)
+  if work['pos'] == -1
+    call hykw_wp_mvc#search_caller(line)
+    return ''
   endif
+  let filePath = work['filePath']
+  let fileName = work['fileName']
 
   " get the project files's top directory
   let topdir = hykw_wp_mvc#getTopDir()
@@ -120,6 +109,81 @@ function! hykw_wp_mvc#tagjump()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
+function! hykw_wp_mvc#search_caller(line)
+  " at the line "function xxx()"?
+  let pos = stridx(a:line, 'function')
+  if pos > -1
+    let funcName = matchlist(a:line, '\vfunction *([^(]+)')[1]
+  else
+    let funcName = ''
+  endif
+
+  let path = expand('%:p:h')
+  let searchMethod = hykw_wp_mvc#getSearchMethod(path)
+  let fileName = hykw_wp_mvc#getMethodFileName(searchMethod)
+
+  let searchString = printf('%s %s.*%s.*%s', g:hykw_wp_mvc#ag_command, searchMethod, fileName, funcName)
+  execute searchString
+endfunction
+
+
+function! hykw_wp_mvc#getMethodFileName(searchMethod)
+  let regexp = printf('\v%s/(.*)', hykw_wp_mvc#getCMDs()[a:searchMethod][0])
+  echomsg regexp
+
+  let filepath = matchlist(expand('%:r'), regexp)
+"  echomsg string(filepath)
+  return filepath[1]
+
+endfunction
+
+
+function! hykw_wp_mvc#getSearchMethod(path)
+  let cmds = hykw_wp_mvc#getCMDs()
+  let tmp_foundPath = ''
+
+  let callMethodName = ''  "e.g.:callBehavior
+  for method in keys(cmds)
+    let searchPath = cmds[method][0]
+    if stridx(a:path, searchPath) > -1
+      "  model, model/behavior: model/behavior should be matched
+      if len(tmp_foundPath) < len(searchPath)
+        let tmp_foundPath = searchPath
+        let callMethodName = method
+      endif
+    endif
+  endfor
+
+  return callMethodName
+endfunction
+
+function! hykw_wp_mvc#getCMDs()
+  let cmds = {
+        \  'callComponent': ['controller/component', ''],
+        \  'callModel': ['model', 'index.php'],
+        \  'callBehavior': ['model/behavior', ''],
+        \  'callView': ['view', 'index.php'],
+        \  'callHelper': ['view/helper', ''],
+        \  }
+  return cmds
+endfunction
+
+
+function! hykw_wp_mvc#getMethod(line)
+  let cmds = hykw_wp_mvc#getCMDs()
+  for method in keys(cmds)
+    let pos = stridx(a:line, method)
+
+    " method found
+    if pos != -1
+      return {'pos': pos, 'filePath':cmds[method][0], 'fileName':cmds[method][1]}
+    endif
+  endfor
+
+  return {'pos': pos}
+endfunction
+
+
 function! hykw_wp_mvc#openAndSearchString(openedFile, funcName)
   execute printf("split %s", a:openedFile)
 

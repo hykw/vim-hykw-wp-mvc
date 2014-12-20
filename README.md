@@ -19,6 +19,12 @@ e.g.
 
     In the line 3, you call hykw_wp_mvc#tagjump(), it jumps.
 
+Since 1.1.0, when you call the function in the definition(function view() in
+view/help/sp/ranking.php), it grep the sources with the Ag command.
+
+The default command which does grep is defined like below:
+  let g:hykw_wp_mvc#ag_command = "Ag "
+
 ## Installation
 You can install it with NeoBundle, like those.
 
