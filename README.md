@@ -22,6 +22,9 @@ e.g.
 Since 1.1.0, when you call the function in the definition(function view() in
 view/help/sp/ranking.php), it grep the sources with the Ag command.
 
+Since 1.2.0, when you call the function at apply_filters()/add_filter(), it search
+the place where it's called/defined.
+
 The default command which does grep is defined like below:
   let g:hykw_wp_mvc#ag_command = "Ag "
 

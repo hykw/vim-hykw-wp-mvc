@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.1.0
+" version: 1.2.0
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -20,6 +20,14 @@ if !exists('hykw_wp_mvc#ag_command')
   let g:hykw_wp_mvc#ag_command = "Ag "
 endif
 
+""""""""""""""""""""""""""""""""""""""""""""""""""
+function! Debug(str)
+  ruby << EOL
+    File.open('/tmp/zzz.txt', 'w') do |f|
+      f.puts VIM.evaluate('a:str')
+    end
+EOL
+endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#tagjump()
   cd $PWD
@@ -113,12 +121,21 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 function! hykw_wp_mvc#search_caller(line)
-  " at the line "function xxx()"?
-  let pos = stridx(a:line, 'function')
-  if pos > -1
-    let funcName = matchlist(a:line, '\vfunction *([^(]+)')[1]
+  " filter?
+  let filterNames = hykw_wp_mvc#getFilterName(a:line)
+  if filterNames[0] > -1
+    let searchString = printf('%s %s.*%s', g:hykw_wp_mvc#ag_command, filterNames[0], filterNames[1])
+    execute searchString
+
+    return
   else
-    let funcName = ''
+    " at the line "function xxx()"?
+    let pos = stridx(a:line, 'function')
+    if pos > -1
+      let funcName = matchlist(a:line, '\vfunction *([^(]+)')[1]
+    else
+      let funcName = ''
+    endif
   endif
 
   let path = expand('%:p:h')
@@ -128,6 +145,34 @@ function! hykw_wp_mvc#search_caller(line)
   let searchString = printf('%s %s.*%s', g:hykw_wp_mvc#ag_command, searchMethod, funcName) . "[\\'" . '\\\"]'
   execute searchString
 endfunction
+
+
+" on apply_filters('view/sp2/aaaa')
+"  return ['add_filter', 'view/sp2/aaaa']
+"  return ['apply_filters', 'view/sp2/aaaa']
+" not found, returns -1
+function! hykw_wp_mvc#getFilterName(line)
+  let pos = stridx(a:line, 'add_filter')
+  if pos > -1
+    let funcName = 'add_filter'
+    let ret_func = 'apply_filters'
+  else
+    let pos = stridx(a:line, 'apply_filters')
+    if pos > -1
+      let funcName = 'apply_filters'
+      let ret_func = 'add_filter'
+    else
+      return [-1]
+    endif
+  endif
+
+  " it should be includes ' and/or "
+  let ptn = printf('\v%s\( *([^,]+),.*\)', funcName)
+  let filterName = matchlist(a:line, ptn)[1]
+
+  return [ret_func, filterName]
+endfunction
+
 
 
 function! hykw_wp_mvc#getMethodFileName(searchMethod)
