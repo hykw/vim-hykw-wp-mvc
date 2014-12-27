@@ -123,9 +123,9 @@ function! hykw_wp_mvc#search_caller(line)
 
   let path = expand('%:p:h')
   let searchMethod = hykw_wp_mvc#getSearchMethod(path)
-  let fileName = hykw_wp_mvc#getMethodFileName(searchMethod)
+"  let fileName = hykw_wp_mvc#getMethodFileName(searchMethod)
 
-  let searchString = printf('%s %s.*%s.*%s', g:hykw_wp_mvc#ag_command, searchMethod, fileName, funcName)
+  let searchString = printf('%s %s.*%s', g:hykw_wp_mvc#ag_command, searchMethod, funcName) . "[\\'" . '\\\"]'
   execute searchString
 endfunction
 
