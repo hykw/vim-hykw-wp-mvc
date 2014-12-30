@@ -9,6 +9,7 @@ It works like Tags. When you call the function "hykw_wp_mvc#tagjump()" in the li
     callBehavior
     callView
     callHelper
+    callUtil
 
 e.g.
 

@@ -1,5 +1,5 @@
 " vim-hykw-wp-mvc
-" version: 1.2.0
+" version: 1.3.0
 " Author: Hitoshi Hayakawa
 " License: MIT
 "
@@ -212,6 +212,7 @@ function! hykw_wp_mvc#getCMDs()
         \  'callBehavior': ['model/behavior', ''],
         \  'callView': ['view', 'index.php'],
         \  'callHelper': ['view/helper', ''],
+        \  'callUtil': ['util', ''],
         \  }
   return cmds
 endfunction
